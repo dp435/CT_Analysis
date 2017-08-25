@@ -1,0 +1,17 @@
+#!/bin/sh
+vcc dsc.c -o dsc
+# create the result file
+rfile=result.csv
+rm -f $rfile
+echo "DSC." > $rfile
+# do for all cases listed in the file specified by $1
+for i in `cat $1`
+do
+# show which case is being processed
+echo $i
+
+#### assume program is in main directory
+./dsc if=$i/output ig=$i/gt >> $rfile
+
+done
+echo "ptest completed"

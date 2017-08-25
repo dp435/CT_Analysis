@@ -1,0 +1,22 @@
+#!/bin/sh
+
+# imglnk all cases listed in the file specified by $1
+for i in `cat $1`
+do
+echo $i
+if [ ! -d $i ]; then
+#link case
+imglnk SR $i -m
+fi
+cd $i
+vlmap if=s1map.vx of=spcanal.vx -e o=spcanal
+vlmap if=s1map.vx of=vert.vx -e o=vertebrae
+vmorph -de if=vert.vx of=morph.vx s=2,2,10 t=s
+vop -sub if=morph.vx ig=vert.vx of=disc.vx
+rm morph.vx
+#vpr if=s1.1.vxa of=annot
+cd ..
+#python parse.py $i/annot $i/truth
+
+done
+echo "Linking completed."

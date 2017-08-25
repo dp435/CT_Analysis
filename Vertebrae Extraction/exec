@@ -1,0 +1,35 @@
+#!/bin/sh
+vcc rgrow.c -o rgrow
+vcc trim.c -o trim
+# exec program for each seed.
+for i in `cat $1`
+do
+echo $i
+seedIdx=0
+echo "Calculating mean image."
+vmean if=$i/im of=$i/mean xy=3
+for s in `cat seed/$i`
+do
+# grow each seed.
+IFS=',' read -r -a array <<< "$s"
+rgrow if=$i/mean of="$i/seed$seedIdx" xs=${array[0]} ys=${array[1]} zs=${array[2]}
+seedIdx=$((seedIdx+1))
+done
+
+# stitch outputs together.
+echo "Stitching images together."
+vop -or if=$i/seed0 ig=$i/seed1 of=$i/sgmt0
+vop -or if=$i/sgmt0 ig=$i/seed2 of=$i/sgmt1
+vop -or if=$i/sgmt1 ig=$i/seed3 of=$i/sgmt2
+vop -or if=$i/sgmt2 ig=$i/seed4 of=$i/combined
+echo "Applying morphological operations."
+vmorph -de if=$i/trimmed of=$i/output t=s s=15,15
+
+# remove intermediary files.
+echo "Cleaning up...."
+rm "$i/mean"
+rm "$i/seed0" "$i/seed1" "$i/seed2" "$i/seed3" "$i/seed4"
+rm "$i/sgmt0" "$i/sgmt1" "$i/sgmt2" "$i/combined" "$i/trimmed"
+
+done
+echo "Execution completed."

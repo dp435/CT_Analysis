@@ -1,0 +1,15 @@
+#!/bin/sh
+
+# compile .c program
+vcc maxcut.c -o maxcut
+
+# imglnk all cases listed in the file specified by $1
+for i in `cat $1`
+do
+
+# run program
+maxcut if=$i/s1.if ig=$i/disc.vx sp=$i/spcanal.vx of=$i/center.csv -v
+#python compare.py $i/center.csv $i/truth
+
+done
+echo "Execution completed."
